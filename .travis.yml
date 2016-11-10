@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: c6x8ZKfyjGBHo+GCK7dG/pFnL4h5fEbkBEGk6DxEjbfYqvvA4H9NUF6qVaYfeHJsUEww0o23/m1iO2Mxg8sl0hbneFMTnLGxY97zWJ9zQIBW3vZhihsju1MLaDJrHnMoY9e4E+uSrpBNbN5JOeqMC8A9GLvOY28v2FE0O7z6vz+ONqalwkpQJqQbWVgStAUW4z+hII2zwr9NV2398nPyS/YFJwOOFFITIRtvjJDaiLLZf9qA2RnoqXARUFiollRvFT0h9XCPoliUBjJ6PyE1N+nYa6NYZ88lUDFkte/th+AEmahu6QDQLFWiIz/WcMW39dttnMdvRSVhFxg0bMhgmfeZ03QTgfwvxykoTO2NXE/r3os4tSgpOl44Tww8tejzWyE3VvgQqj47yIqp7yHYRXaP5+zP9IMZFUYncpfu2H85taVLL94i1JGUfPmV/WXvNiOkaI1Ex7V2h+9OgznEUi4I7Xo+t10kpQQOtfhos7HXUf58SZhrfaAGEheabgvEzQJj2bNuZrbiX6GYPF8wbzBFPYE+trl+xpE2BkmoTq4GEUM406M9HWplNMvH2ZjHibC44ctLX/hUwvBzgio7gJR4D7hCHLqJQQOB01ifC6LyvCNK/z16M2JZ0RhTnVKqQMHRUdczrEEiBwMGYuh8aJWPJAKm6njqsHDanKS5WkA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Speeches-of-the-Hon-Jefferson-Davis-of-Mississippi-delivered-during-the-summer-of-1858_5205
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
